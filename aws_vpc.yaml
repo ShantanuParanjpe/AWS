@@ -1,27 +1,27 @@
 ---
-- name: create VPC
-  ec2_vpc_net:
+ - name: create VPC
+   ec2_vpc_net:
     name: "{{ vpc_name }}"
     cidr_block: "{{ vpc_cidr }}"
     region: "{{ region }}"
     state: present
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-  register: vpc
+   register: vpc
 
--  amazon.aws.ec2_vpc_subnet:
-    state: present
-    vpc_id: "{{ vpc_id }}"
-    region: "{{ region }}"
-    cidr: "{{ subnet_cidr }}"
-    aws_access_key: "{{ aws_access_key }}"
-    aws_secret_key: "{{ aws_secret_key }}"
-    map_public: yes
-    resource_tags:
-      Name: "{{ subnet_name }}"
-    register: subnet
+ - amazon.aws.ec2_vpc_subnet:
+   state: present
+   vpc_id: "{{ vpc_id }}"
+   region: "{{ region }}"
+   cidr: "{{ subnet_cidr }}"
+   aws_access_key: "{{ aws_access_key }}"
+   aws_secret_key: "{{ aws_secret_key }}"
+   map_public: yes
+   resource_tags:
+    Name: "{{ subnet_name }}"
+   register: subnet
 
--  amazon.aws.ec2_vpc_subnet:
+ -  amazon.aws.ec2_vpc_subnet:
     state: present
     vpc_id: "{{ vpc_id }}"
     region: "{{ region }}"
@@ -33,8 +33,8 @@
       Name: "{{ subnet_name_1 }}"
     register: subnet
 
-- name: create IGW
-  ec2_vpc_igw:
+ - name: create IGW
+   ec2_vpc_igw:
    vpc_id: "{{ vpc_id }}"
    region: "{{ region }}"
    aws_access_key: "{{ aws_access_key }}"
@@ -42,24 +42,24 @@
    state: "present"
    tags:
      Name: "{{ igw_name }}"
-  register: igw
+   register: igw
 
-- name: Route IGW
-  ec2_vpc_route_table:
-  vpc_id: "{{ vpc_id }}"
-  region: "{{ region }}"
-  aws_access_key: "{{ aws_access_key }}"
-  aws_secret_key: "{{ aws_secret_key }}"
-  subnets:
-    - "{{ subnet.subnet.id }}"
-  routes:
+ - name: Route IGW
+   ec2_vpc_route_table:
+   vpc_id: "{{ vpc_id }}"
+   region: "{{ region }}"
+   aws_access_key: "{{ aws_access_key }}"
+   aws_secret_key: "{{ aws_secret_key }}"
+   subnets:
+   - "{{ subnet.subnet.id }}"
+   routes:
     - dest: 0.0.0.0/0
       gateway_id: "{{ igw.gateway_id  }}"
-  tags:
-    Name: "{{ route_name }}"
+   tags:
+     Name: "{{ route_name }}"
 
-- name: Create Security Group
-  ec2_group:
+ - name: Create Security Group
+   ec2_group:
     name: Web DMZ
     description: DMZ Security Group
     vpc_id: "{{ vpc_id }}"
@@ -75,10 +75,10 @@
         ports:
         - 22
         cidr_ip: 0.0.0.0/0
-  register: security_group
+   register: security_group
 
-- name: Create EC2 Instance
-  ec2:
+ - name: Create EC2 Instance
+   ec2:
     image: ami-467ca739
     wait: yes
     instance_type: t2.micro
@@ -90,4 +90,3 @@
     exact_count: 1
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
----
